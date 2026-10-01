@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Trilha · treino com peso do corpo</title>
+    <meta name="description" content="Treino com peso do corpo para começar do zero: trilhas de progressão, treino guiado, caminhada, medidas, hábitos e conquistas. Funciona offline." />
+    <meta name="theme-color" content="#f9f9f7" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Trilha" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script>
+      // Aplica o tema salvo antes da primeira pintura, para não piscar.
+      try {
+        var salvo = JSON.parse(localStorage.getItem('trilha:estado') || '{}');
+        var tema = salvo && salvo.config && salvo.config.tema;
+        if (tema === 'claro') document.documentElement.dataset.theme = 'light';
+        if (tema === 'escuro') document.documentElement.dataset.theme = 'dark';
+      } catch (e) {}
+    </script>
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    <div id="app">
+      <main id="conteudo" tabindex="-1">
+        <div class="carregando">Carregando…</div>
+        <noscript>
+          <p>O Trilha precisa de JavaScript ativado para funcionar.</p>
+        </noscript>
+      </main>
+    </div>
+  </body>
+</html>
