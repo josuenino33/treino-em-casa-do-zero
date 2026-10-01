@@ -1,5 +1,7 @@
 # Trilha · treino com peso do corpo
 
+**Abrir o app:** https://josuenino33.github.io/trilha-treino/
+
 App web para quem está começando do zero (inclusive com bastante peso a perder) e quer ganhar força, fôlego e perder gordura **aos poucos**, sem academia. Funciona no celular como um app instalado, inclusive sem internet, e todos os dados ficam só no seu aparelho.
 
 > Este app é uma ferramenta de apoio e não substitui acompanhamento de médico, nutricionista ou profissional de educação física.
@@ -63,7 +65,7 @@ O repositório já vem com um workflow ([`.github/workflows/publicar.yml`](.gith
 3. No site do GitHub, abra o repositório e vá em **Settings → Pages**. Em **Build and deployment → Source**, escolha **GitHub Actions**.
 4. Vá na aba **Actions** e rode o workflow **Testar e publicar** (ou faça qualquer novo commit). Quando terminar, o app estará em:
    `https://SEU-USUARIO.github.io/trilha-treino/`
-5. Opcional: coloque o endereço do repositório em [`js/versao.js`](js/versao.js) (`URL_REPOSITORIO`) para aparecer um link na tela "Mais".
+5. Coloque o endereço do repositório em [`js/versao.js`](js/versao.js) (`URL_REPOSITORIO`) para aparecer um link na tela "Mais".
 
 ### Pela linha de comando
 
