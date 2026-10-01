@@ -110,6 +110,33 @@ export function minutosPorSemana(estado, hoje = hojeISO(), n = 12) {
   return semanas.map((inicio) => ({ inicio, valor: mapa.get(inicio) }));
 }
 
+export function kmPorSemana(estado, hoje = hojeISO(), n = 12) {
+  const semanas = inicioDasSemanas(hoje, n);
+  const mapa = new Map(semanas.map((s) => [s, 0]));
+  for (const c of estado.caminhadas) {
+    const s = inicioSemana(c.data);
+    if (mapa.has(s)) mapa.set(s, mapa.get(s) + (Number(c.distanciaKm) || 0));
+  }
+  return semanas.map((inicio) => ({ inicio, valor: Number(mapa.get(inicio).toFixed(2)) }));
+}
+
+// Tamanho médio do passo (m), a partir de caminhadas medidas com GPS e
+// sensor ao mesmo tempo. Serve para estimar a distância quando não há GPS.
+export function passadaMedia(estado) {
+  let metros = 0;
+  let passos = 0;
+  for (const c of estado.caminhadas) {
+    const m = c.medicao;
+    if (m && !m.distanciaEstimada && m.metros >= 300 && m.passos > 200) {
+      metros += m.metros;
+      passos += m.passos;
+    }
+  }
+  if (passos < 500) return null;
+  const p = metros / passos;
+  return p > 0.3 && p < 1.2 ? p : null;
+}
+
 export function treinosPorSemana(estado) {
   const mapa = new Map();
   for (const t of estado.treinos) {
@@ -159,7 +186,9 @@ export function totais(estado) {
     }
   }
   const minutos = estado.caminhadas.reduce((s, c) => s + (Number(c.minutos) || 0), 0);
-  return { treinos: estado.treinos.length, caminhadas: estado.caminhadas.length, minutos, series, reps };
+  const km = estado.caminhadas.reduce((s, c) => s + (Number(c.distanciaKm) || 0), 0);
+  const passos = estado.caminhadas.reduce((s, c) => s + (Number(c.passos) || 0), 0);
+  return { treinos: estado.treinos.length, caminhadas: estado.caminhadas.length, minutos, series, reps, km, passos };
 }
 
 // Melhor série e volume de uma trilha em cada treino, para o gráfico da trilha.

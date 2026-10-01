@@ -7,6 +7,7 @@ import { statusTeste } from '../logic/plano.js';
 import { botao, cartao, confirmar, contador, link, toast, vazio } from '../ui/componentes.js';
 import { anexar, comSinal, h, limpar, num } from '../ui/dom.js';
 import { graficoLinha } from '../ui/graficos.js';
+import { figuraExercicio } from '../ui/figura.js';
 import { icone } from '../ui/icones.js';
 import { bipe, liberarSom, vibrar } from '../ui/som.js';
 import { verificarConquistas } from './acoes.js';
@@ -15,6 +16,7 @@ export const TESTES = [
   {
     id: 'flexoes',
     nome: 'Flexões no chão',
+    anim: { tipo: 'flexao' },
     unidade: 'reps',
     passo: 1,
     como: [
@@ -27,6 +29,7 @@ export const TESTES = [
   {
     id: 'sentar30',
     nome: 'Sentar e levantar em 30 segundos',
+    anim: { tipo: 'sentar', maos: 'cruzadas' },
     unidade: 'reps',
     passo: 1,
     cronometro: 30,
@@ -40,6 +43,7 @@ export const TESTES = [
   {
     id: 'prancha',
     nome: 'Prancha máxima',
+    anim: { tipo: 'prancha' },
     unidade: 's',
     passo: 5,
     cronometroLivre: true,
@@ -145,6 +149,7 @@ export function fluxoTeste({ aoConcluir, textoFinal = 'Salvar resultado', aoCanc
       anexar(raiz,
         h('p', { class: 'sobretitulo' }, `Teste ${passo + 1} de ${TESTES.length}`),
         h('h2', null, t.nome),
+        figuraExercicio(t.anim, { rotulo: `Como fazer: ${t.nome}`, compacta: true }),
         cartao(null, h('ol', { class: 'passos' }, t.como.map((c) => h('li', null, c)))),
         t.cronometro ? cronometroRegressivo(t.cronometro) : null,
         t.cronometroLivre ? cronometroLivre((seg) => { resultado[t.id] = seg; cont.definir(seg); }) : null,

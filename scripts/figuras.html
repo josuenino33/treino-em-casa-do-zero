@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ilustrações · conferência</title>
+    <link rel="stylesheet" href="../css/app.css" />
+    <style>
+      body { padding: 16px; }
+      .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+      .item { background: var(--surface); border: 1px solid var(--borda); border-radius: 12px; padding: 8px; }
+      .item h3 { font-size: 0.85rem; margin: 6px 4px 2px; }
+      .item p { font-size: 0.75rem; color: var(--texto-3); margin: 0 4px 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>Ilustrações dos exercícios</h1>
+    <p class="texto-2">Página de conferência para quem mexe em <code>js/data/movimentos.js</code>. Abra com <code>npm start</code> em /scripts/figuras.html.</p>
+    <div id="lista" class="grade"></div>
+    <script type="module">
+      import { TRILHAS } from '../js/data/trilhas.js';
+      import { figuraExercicio, miniFigura } from '../js/ui/figura.js';
+      import { montarMovimento } from '../js/data/movimentos.js';
+      import { h } from '../js/ui/dom.js';
+      // ?quadros mostra cada pose-chave parada, lado a lado.
+      const quadros = new URLSearchParams(location.search).has('quadros');
+      const lista = document.getElementById('lista');
+      if (quadros) lista.style.gridTemplateColumns = 'repeat(auto-fill, minmax(420px, 1fr))';
+      for (const t of TRILHAS) {
+        t.niveis.forEach((nv, i) => {
+          let fig;
+          if (quadros) {
+            const mov = montarMovimento(nv.anim);
+            fig = h('div', { style: { display: 'flex', gap: '4px' } }, mov.quadros.map((_, k) => {
+              const m = miniFigura(nv.anim, '', k);
+              m.style.width = (new URLSearchParams(location.search).get('tam') || '100') + 'px';
+              return m;
+            }));
+          } else {
+            fig = figuraExercicio(nv.anim, { rotulo: nv.nome, compacta: true });
+          }
+          lista.append(h('div', { class: 'item' }, fig || h('p', null, 'SEM ILUSTRAÇÃO'), h('h3', null, `${t.nome} ${i + 1}: ${nv.nome}`)));
+        });
+      }
+    </script>
+  </body>
+</html>

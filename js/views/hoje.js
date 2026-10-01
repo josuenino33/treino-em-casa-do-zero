@@ -22,6 +22,8 @@ import { estimarMinutos, montarTreino, statusTrilha } from '../logic/progressao.
 import { TRILHAS } from '../data/trilhas.js';
 import { aviso, barraProgresso, botao, cartao, estatistica, link } from '../ui/componentes.js';
 import { comSinal, h, numCurto } from '../ui/dom.js';
+import { miniFigura } from '../ui/figura.js';
+import { pausasDoDia } from '../logic/pausas.js';
 import { icone } from '../ui/icones.js';
 import { folhaCaminhada, folhaMedidas, verificarConquistas } from './acoes.js';
 
@@ -57,7 +59,7 @@ function cartaoForca(e, plano, ctx) {
       { class: 'lista-exercicios' },
       exercicios.map((ex) => {
         const nv = nivelDe(ex.trilha, ex.nivel);
-        return h('li', null, h('span', { class: 'nivel-bolha' }, String(ex.nivel)), h('span', null, h('strong', null, nv.nome), h('small', null, trilha(ex.trilha).nome)));
+        return h('li', null, miniFigura(nv.anim) || h('span', { class: 'nivel-bolha' }, String(ex.nivel)), h('span', null, h('strong', null, nv.nome), h('small', null, `${trilha(ex.trilha).nome} · nível ${ex.nivel}`)));
       }),
     ),
     link({ href: '#/treino', texto: rascunho ? 'Continuar treino' : 'Começar treino', icone: 'play', variante: 'primario', bloco: true, tamanho: 'lg' }),
@@ -73,7 +75,7 @@ function cartaoCaminhada(e, plano, ctx) {
     );
   }
   return cartao(
-    { classe: 'card-hoje', titulo: `Caminhada · ${plano.metaMin} min`, subtitulo: `${tipo.nome}. ${tipo.descricao}` },
+    { classe: 'card-hoje', titulo: `Caminhada · ${plano.metaMin} min`, subtitulo: `${tipo.nome}. ${tipo.descricao}${plano.metaMin <= 20 ? ' Se cansar, divida em duas caminhadas curtas no dia.' : ''}` },
     h(
       'div',
       { class: 'acoes' },
@@ -153,6 +155,21 @@ function alertas(e, ctx) {
   return lista;
 }
 
+function cartaoPausas(e) {
+  const cfg = e.config.pausas;
+  if (!cfg.mostrar) return null;
+  const feitas = pausasDoDia(e);
+  return cartao(
+    {
+      titulo: 'Pausas ativas',
+      subtitulo: feitas >= cfg.meta ? `${feitas} hoje: meta batida!` : `${feitas} de ${cfg.meta} hoje · levante a cada hora`,
+    },
+    barraProgresso(feitas / cfg.meta, 'Pausas ativas de hoje'),
+    link({ href: '#/pausa', texto: 'Fazer pausa de 2 min', icone: 'play', variante: 'secundario', bloco: true }),
+    !cfg.lembrete ? h('p', { class: 'texto-3' }, h('a', { href: '#/config' }, 'Ative o lembrete'), ' e o app avisa a cada hora, enquanto estiver aberto.') : null,
+  );
+}
+
 export function cartaoHabitos(e, ctx, { comLink = true } = {}) {
   const hoje = hojeISO();
   const ativos = HABITOS.filter((x) => e.config.habitos.includes(x.id));
@@ -213,6 +230,7 @@ export default function telaHoje(ctx) {
       estatistica({ rotulo: 'Treinos', valor: String(tot.treinos), detalhe: `${tot.caminhadas} ${tot.caminhadas === 1 ? 'caminhada' : 'caminhadas'}` }),
       estatistica({ rotulo: 'Semanas', valor: String(seq), detalhe: 'seguidas com 2+ treinos' }),
     ),
+    cartaoPausas(e),
     cartaoHabitos(e, ctx),
     prox
       ? cartao(

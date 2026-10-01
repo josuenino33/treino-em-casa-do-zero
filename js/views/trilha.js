@@ -9,6 +9,7 @@ import { FASES, faseDaSemana, semanaDoPrograma } from '../logic/plano.js';
 import { TREINOS_NO_TOPO, entradasDaTrilha, mudarNivel, progressoGeral, statusTrilha } from '../logic/progressao.js';
 import { abrirFolha, aviso, barraProgresso, botao, cartao, toast } from '../ui/componentes.js';
 import { h, num } from '../ui/dom.js';
+import { figuraExercicio, miniFigura } from '../ui/figura.js';
 import { graficoLinha } from '../ui/graficos.js';
 import { icone } from '../ui/icones.js';
 import { verificarConquistas } from './acoes.js';
@@ -286,10 +287,12 @@ function telaDetalhe(id, ctx) {
               h('span', { class: 'nivel-bolha' }, estado === 'feito' ? icone('check', { tamanho: 14 }) : String(n)),
               h('span', { class: 'nivel-nome' }, h('strong', null, nv.nome), h('small', null, rotuloFaixa(nv), semBarra ? ' · precisa de barra' : '')),
               semBarra ? icone('cadeado', { tamanho: 16, classe: 'texto-3' }) : null,
+              miniFigura(nv.anim),
             ),
             h(
               'div',
               { class: 'nivel-corpo' },
+              figuraExercicio(nv.anim, { rotulo: `Como fazer: ${nv.nome}`, compacta: true }),
               h('ol', null, nv.como.map((p) => h('li', null, p))),
               nv.dicas.length ? h('p', null, h('strong', null, 'Dica: '), nv.dicas.join(' ')) : null,
               nv.erros.length ? h('p', null, h('strong', null, 'Evite: '), nv.erros.join(' ')) : null,

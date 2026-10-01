@@ -604,8 +604,88 @@ export const TRILHAS = [
   },
 ];
 
-// Ordem dos exercícios no treino: começa pelas pernas e alterna grupos.
-export const ORDEM_TREINO = ['agachamento', 'empurrar', 'puxar', 'afundo', 'quadril', 'prancha', 'estabilidade'];
+// Ilustração de cada nível (ver js/data/movimentos.js), na mesma ordem dos níveis.
+const ANIMACOES = {
+  agachamento: [
+    { tipo: 'sentar', maos: 'joelhos' },
+    { tipo: 'sentar', maos: 'cruzadas' },
+    { tipo: 'agachamento', apoio: true, profundidade: 0.85 },
+    { tipo: 'agachamento', cadeira: true },
+    { tipo: 'agachamento' },
+    { tipo: 'agachamento', pausa: 2 },
+    { tipo: 'agachamento', mochila: true },
+    { tipo: 'agachamento', mochila: true, descida: 3 },
+  ],
+  empurrar: [
+    { tipo: 'flexao', parede: true },
+    { tipo: 'flexao', altura: 90 },
+    { tipo: 'flexao', altura: 75 },
+    { tipo: 'flexao', altura: 45 },
+    { tipo: 'flexao', altura: 25 },
+    { tipo: 'flexao' },
+    { tipo: 'flexao', descida: 3 },
+    { tipo: 'flexao', pes: 40 },
+    { tipo: 'flexao', maosJuntas: true, legenda: 'Mãos juntas, embaixo do peito' },
+    { tipo: 'flexao', legenda: 'Mãos bem afastadas; o peso vai para um braço' },
+  ],
+  puxar: [
+    { tipo: 'remada' },
+    { tipo: 'remada', pesada: true },
+    { tipo: 'remada', pesada: true, pausa: 2 },
+    { tipo: 'invertida', barra: 120 },
+    { tipo: 'invertida', barra: 95 },
+    { tipo: 'invertida', barra: 70 },
+    { tipo: 'barra', negativa: true },
+    { tipo: 'barra' },
+  ],
+  afundo: [
+    { tipo: 'degrau', altura: 18 },
+    { tipo: 'degrau', altura: 35 },
+    { tipo: 'afundo', apoio: true },
+    { tipo: 'afundo' },
+    { tipo: 'afundo', frente: true },
+    { tipo: 'bulgaro' },
+    { tipo: 'bulgaro', mochila: true },
+    { tipo: 'unilateralCadeira' },
+  ],
+  quadril: [
+    { tipo: 'ponte' },
+    { tipo: 'ponte', pausa: 3 },
+    { tipo: 'elevacao' },
+    { tipo: 'ponte', unilateral: true },
+    { tipo: 'elevacao', mochila: true },
+    { tipo: 'elevacao', unilateral: true },
+    { tipo: 'elevacao', unilateral: true, mochila: true },
+  ],
+  prancha: [
+    { tipo: 'prancha', altura: 75 },
+    { tipo: 'prancha', joelhos: true },
+    { tipo: 'prancha' },
+    { tipo: 'prancha' },
+    { tipo: 'pranchaAlta' },
+    { tipo: 'prancha', perna: true },
+    { tipo: 'prancha', pes: 40 },
+  ],
+  estabilidade: [
+    { tipo: 'deadBug' },
+    { tipo: 'deadBug', bracos: true },
+    { tipo: 'deadBug', bracos: true, pausa: 3 },
+    { tipo: 'lateral', joelhos: true },
+    { tipo: 'lateral' },
+    { tipo: 'lateral' },
+    { tipo: 'lateral', elevacao: true },
+  ],
+};
+
+for (const t of TRILHAS) {
+  t.niveis.forEach((nv, i) => {
+    nv.anim = ANIMACOES[t.id]?.[i] || null;
+  });
+}
+
+// Ordem dos exercícios no treino: alterna braço, perna e chão para que os
+// braços descansem entre um exercício de braço e outro.
+export const ORDEM_TREINO = ['agachamento', 'empurrar', 'quadril', 'puxar', 'estabilidade', 'afundo', 'prancha'];
 
 const POR_ID = new Map(TRILHAS.map((t) => [t.id, t]));
 

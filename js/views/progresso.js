@@ -8,6 +8,7 @@ import {
   mapaAtividade,
   mediaMovel,
   minutosPorSemana,
+  kmPorSemana,
   pesoAtual,
   pesoInicial,
   serieMedida,
@@ -119,6 +120,19 @@ export default function telaProgresso(ctx) {
       descricao: 'Séries de força por semana',
     }),
   );
+  const semanasKm = kmPorSemana(e, hoje, Math.min(semanas, 26));
+  const distanciaSemanal = semanasKm.some((s) => s.valor > 0)
+    ? cartao(
+        { titulo: 'Quilômetros por semana' },
+        graficoColunas({
+          barras: semanasKm.map((s) => ({ rotulo: rotuloSemana(s.inicio), rotuloLongo: `Semana de ${formatarData(s.inicio, { ano: true })}`, valor: s.valor })),
+          unidade: 'km',
+          nomeSerie: 'Quilômetros',
+          formatar: (v) => numCurto(v, 1),
+          descricao: 'Quilômetros caminhados por semana',
+        }),
+      )
+    : null;
   const caminhadas = cartao(
     { titulo: 'Minutos de caminhada por semana' },
     graficoColunas({
@@ -204,6 +218,7 @@ export default function telaProgresso(ctx) {
       constancia,
       volume,
       caminhadas,
+      distanciaSemanal,
       medidasCorpo,
       historicoMedidas,
       fotos,

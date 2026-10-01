@@ -7,6 +7,7 @@
 import { TRILHAS, ORDEM_TREINO, trilha, nivelDe } from '../data/trilhas.js';
 import { niveisPadrao } from '../core/esquema.js';
 import { hojeISO } from '../core/datas.js';
+import { semanaDoPrograma, seriesDaSemana } from './plano.js';
 
 export const PASSO = { reps: 1, segundos: 5 };
 export const TREINOS_NO_TOPO = 2;
@@ -64,10 +65,13 @@ export function entradasDaTrilha(estado, trilhaId) {
   return saida;
 }
 
+// Uma sessão conta para subir de nível quando fez todas as séries que o
+// programa pedia naquele treino (2 nas semanas de adaptação, 3 depois).
 export function avaliarEntrada(nv, entrada) {
   const series = entrada?.series || [];
-  const completa = series.length >= nv.series;
-  const todasNoTopo = completa && series.slice(0, nv.series).every((v) => v >= nv.max);
+  const alvo = entrada?.alvoSeries || nv.series;
+  const completa = series.length >= alvo;
+  const todasNoTopo = completa && series.slice(0, alvo).every((v) => v >= nv.max);
   return {
     completa,
     noTopo: todasNoTopo && entrada.esforco !== 'falha',
@@ -139,18 +143,27 @@ export function metasDoDia(nv, ultima, numSeries = nv.series) {
   });
 }
 
-export function numSeries(nv, modo) {
-  return modo === 'curto' ? Math.min(2, nv.series) : nv.series;
+// Séries que o programa pede hoje para este nível.
+export function seriesPrevistas(estado, nv, hoje = hojeISO()) {
+  const semana = semanaDoPrograma(estado.perfil.inicio, hoje);
+  return Math.min(nv.series, seriesDaSemana(semana, estado.config.ritmo));
+}
+
+// Treino curto: uma série a menos (mínimo 1).
+export function numSeries(alvo, modo) {
+  return modo === 'curto' ? Math.max(1, alvo - 1) : alvo;
 }
 
 // Monta a lista de exercícios de um treino novo.
-export function montarTreino(estado, modo = 'completo') {
+export function montarTreino(estado, modo = 'completo', hoje = hojeISO()) {
   return ORDEM_TREINO.filter((id) => trilhaDesbloqueada(estado, id)).map((id) => {
     const st = statusTrilha(estado, id);
+    const alvo = seriesPrevistas(estado, st.nivel, hoje);
     return {
       trilha: id,
       nivel: st.numero,
-      metas: metasDoDia(st.nivel, st.ultima, numSeries(st.nivel, modo)),
+      alvoSeries: alvo,
+      metas: metasDoDia(st.nivel, st.ultima, numSeries(alvo, modo)),
       series: [],
       esforco: null,
       dor: false,
@@ -160,7 +173,7 @@ export function montarTreino(estado, modo = 'completo') {
 }
 
 // Estimativa em minutos: aquecimento + séries + descansos.
-export function estimarMinutos(exercicios, descansoSeg = 75) {
+export function estimarMinutos(exercicios, descansoSeg = 90) {
   let seg = 5 * 60;
   for (const ex of exercicios) {
     const nv = nivelDe(ex.trilha, ex.nivel);
@@ -179,7 +192,9 @@ const faixa = (valor, degraus) => {
   return 1;
 };
 
-export function niveisIniciais({ flexoes, sentar30, prancha } = {}) {
+// No ritmo "devagar", começa um nível abaixo do que o teste indica: é melhor
+// sobrar fôlego no começo; o app sobe sozinho depois de 2 treinos bons.
+export function niveisIniciais({ flexoes, sentar30, prancha } = {}, { devagar = false } = {}) {
   const niveis = niveisPadrao();
   if (Number.isFinite(flexoes)) {
     niveis.empurrar = faixa(flexoes, [[20, 6], [15, 5], [10, 4], [5, 3], [1, 2]]);
@@ -189,6 +204,9 @@ export function niveisIniciais({ flexoes, sentar30, prancha } = {}) {
   }
   if (Number.isFinite(prancha)) {
     niveis.prancha = faixa(prancha, [[60, 4], [30, 3], [15, 2]]);
+  }
+  if (devagar) {
+    for (const id of ['empurrar', 'agachamento', 'prancha']) niveis[id] = Math.max(1, niveis[id] - 1);
   }
   return niveis;
 }

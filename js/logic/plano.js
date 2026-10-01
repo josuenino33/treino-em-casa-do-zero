@@ -55,8 +55,17 @@ export function faseDaSemana(semana) {
   return FASES.find((f) => semana >= f.de && semana <= f.ate) || FASES[0];
 }
 
-export function metaCaminhada(semana) {
-  return Math.min(20 + 5 * (semana - 1), 60);
+// Ritmo "devagar": caminhada começa em 10 min; "normal": em 20 min. +5 por semana até 60.
+export function metaCaminhada(semana, ritmo = 'normal') {
+  const inicio = ritmo === 'devagar' ? 10 : 20;
+  return Math.min(inicio + 5 * (semana - 1), 60);
+}
+
+// Séries por exercício que o programa pede na semana. No ritmo "devagar",
+// as 4 primeiras semanas têm 2 séries para o corpo se acostumar.
+export const SEMANAS_DE_ADAPTACAO = 4;
+export function seriesDaSemana(semana, ritmo = 'normal') {
+  return ritmo === 'devagar' && semana <= SEMANAS_DE_ADAPTACAO ? 2 : 3;
 }
 
 // A cada 8 semanas, uma semana mais leve para o corpo se recuperar.
@@ -99,7 +108,7 @@ export function planoDoDia(estado, iso = hojeISO()) {
     semana,
     feitoForca: treinosDoDia(estado, iso).length > 0,
     feitoCaminhada: caminhadasDoDia(estado, iso).length > 0,
-    metaMin: metaCaminhada(semana),
+    metaMin: metaCaminhada(semana, estado.config.ritmo),
     tipoCaminhada: tipo === 'caminhada' ? tipoCaminhada(estado, iso) : 'continua',
   };
 }

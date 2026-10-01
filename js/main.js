@@ -1,6 +1,8 @@
 // Ponto de entrada: carrega os dados, desenha a casca do app e cuida das rotas.
 
-import { carregar, definirErroSalvar, falhaNaCarga, obter } from './core/armazem.js';
+import { carregar, definirErroSalvar, falhaNaCarga, gravarLocal, lerLocal, obter } from './core/armazem.js';
+import { deveLembrar } from './logic/pausas.js';
+import { bipe } from './ui/som.js';
 import { toast } from './ui/componentes.js';
 import { h } from './ui/dom.js';
 import { icone } from './ui/icones.js';
@@ -13,6 +15,7 @@ import telaConfig from './views/config.js';
 import telaHoje from './views/hoje.js';
 import telaMais from './views/mais.js';
 import telaNutricao from './views/nutricao.js';
+import telaPausa from './views/pausa.js';
 import telaProgresso from './views/progresso.js';
 import telaTestes from './views/testes.js';
 import telaTreino from './views/treino.js';
@@ -23,6 +26,7 @@ const ROTAS = {
   trilha: telaTrilha,
   treino: telaTreino,
   caminhada: telaCaminhada,
+  pausa: telaPausa,
   progresso: telaProgresso,
   nutricao: telaNutricao,
   mais: telaMais,
@@ -153,6 +157,32 @@ function registrarServiceWorker() {
   });
 }
 
+// Lembrete de pausa ativa: só funciona com o app aberto (aba ou app instalado).
+function lembretePausas() {
+  if (!lerLocal('ultimaPausa')) gravarLocal('ultimaPausa', Date.now());
+  setInterval(() => {
+    const cfg = obter().config.pausas;
+    const agora = Date.now();
+    if (atual?.tela?.telaCheia) return;
+    if (!deveLembrar({ agora, referencia: lerLocal('ultimaPausa'), intervaloMin: cfg.intervalo, ativo: cfg.lembrete })) return;
+    gravarLocal('ultimaPausa', agora); // adia o próximo aviso
+    bipe('aviso');
+    toast('Hora de levantar um pouco: pausa ativa de 2 minutos?', { duracao: 20000, acao: { rotulo: 'Fazer agora', fn: () => navegar('#/pausa') } });
+    if (document.visibilityState === 'hidden' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        const n = new Notification('Trilha: hora de uma pausa ativa', { body: '2 minutos de movimento leve. Toque para começar.', icon: 'icons/icon-192.png', tag: 'pausa' });
+        n.onclick = () => {
+          window.focus();
+          navegar('#/pausa');
+          n.close();
+        };
+      } catch {
+        /* alguns navegadores só aceitam notificação pelo service worker */
+      }
+    }
+  }, 30000);
+}
+
 function iniciar() {
   carregar();
   aplicarTema(obter().config.tema);
@@ -174,6 +204,7 @@ function iniciar() {
 
   mostrar();
   registrarServiceWorker();
+  lembretePausas();
 }
 
 iniciar();

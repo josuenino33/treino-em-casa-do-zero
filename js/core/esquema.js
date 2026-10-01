@@ -39,13 +39,15 @@ export function estadoPadrao() {
       diasTreino: [1, 3, 5],
       diasCaminhada: [2, 4, 6],
       horario: '07:00',
-      descanso: 75,
+      ritmo: 'devagar',
+      descanso: 90,
       som: true,
       vibrar: true,
       tema: 'auto',
       barra: false,
       manterTela: true,
       habitos: HABITOS.map((h) => h.id),
+      pausas: { mostrar: true, lembrete: false, intervalo: 50, meta: 4 },
     },
     niveis: niveisPadrao(),
     historicoNiveis: [],
@@ -54,6 +56,7 @@ export function estadoPadrao() {
     medidas: [],
     testes: [],
     habitos: {},
+    pausas: {},
     conquistas: {},
   };
 }
@@ -92,6 +95,8 @@ function completar(dados) {
   config.diasTreino = lista(config.diasTreino).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
   config.diasCaminhada = lista(config.diasCaminhada).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
   config.habitos = lista(config.habitos).filter((id) => HABITOS.some((h) => h.id === id));
+  config.pausas = { ...base.config.pausas, ...objeto(config.pausas) };
+  if (!['devagar', 'normal'].includes(config.ritmo)) config.ritmo = base.config.ritmo;
 
   return {
     ...base,
@@ -105,6 +110,7 @@ function completar(dados) {
     medidas: lista(dados.medidas).filter((m) => m && ehISO(m.data)),
     testes: lista(dados.testes).filter((t) => t && ehISO(t.data)),
     habitos: objeto(dados.habitos),
+    pausas: objeto(dados.pausas),
     conquistas: objeto(dados.conquistas),
     app: APP_ID,
     versao: VERSAO,

@@ -6,7 +6,7 @@ import { atualizar, gravarLocal, lerLocal, obter, removerLocal } from '../core/a
 import { hojeISO, relogio } from '../core/datas.js';
 import { novoId } from '../core/esquema.js';
 import { linkVideo, nivelDe, rotuloFaixa, trilha } from '../data/trilhas.js';
-import { semanaDoPrograma, semanaLeve } from '../logic/plano.js';
+import { SEMANAS_DE_ADAPTACAO, semanaDoPrograma, semanaLeve } from '../logic/plano.js';
 import {
   ESFORCOS,
   avaliarEntrada,
@@ -19,6 +19,7 @@ import {
 import { abrirFolha, alternador, aviso, barraProgresso, botao, cartao, confirmar, contador, segmentado, toast } from '../ui/componentes.js';
 import { h, limpar, num, s } from '../ui/dom.js';
 import { icone } from '../ui/icones.js';
+import { figuraExercicio } from '../ui/figura.js';
 import { bipe, liberarSom, liberarTela, manterTelaLigada, vibrar } from '../ui/som.js';
 import { verificarConquistas } from './acoes.js';
 
@@ -163,6 +164,12 @@ export default function telaTreino(ctx) {
   function telaCheckin() {
     const est = obter();
     const minutos = (modo) => estimarMinutos(montarTreino(est, modo), est.config.descanso);
+    const series = (modo) => {
+      const n = montarTreino(est, modo)[0]?.metas.length || 0;
+      return n === 1 ? '1 série' : `${n} séries`;
+    };
+    const semana = semanaDoPrograma(est.perfil.inicio, hojeISO());
+    const adaptando = est.config.ritmo === 'devagar' && semana <= SEMANAS_DE_ADAPTACAO;
     const leve = semanaLeve(semanaDoPrograma(est.perfil.inicio, hojeISO()));
     const avisoDor = h('div', { hidden: !r.dorInicial }, aviso({ tipo: 'aviso', titulo: 'Treine só o que não dói', texto: 'Pule os exercícios que incomodam a articulação. Se a dor for forte, troque o treino por uma caminhada leve hoje.' }));
 
@@ -177,8 +184,8 @@ export default function telaTreino(ctx) {
           rotulo: 'Duração do treino',
           classe: 'segmentado-grande',
           opcoes: [
-            { id: 'completo', nome: 'Completo', detalhe: `3 séries · ~${minutos('completo')} min` },
-            { id: 'curto', nome: 'Curto', detalhe: `2 séries · ~${minutos('curto')} min` },
+            { id: 'completo', nome: 'Completo', detalhe: `${series('completo')} · ~${minutos('completo')} min` },
+            { id: 'curto', nome: 'Curto', detalhe: `${series('curto')} · ~${minutos('curto')} min` },
           ],
           valor: r.modo,
           aoMudar: (modo) => {
@@ -187,7 +194,11 @@ export default function telaTreino(ctx) {
             salvar();
           },
         }),
-        leve ? h('p', { class: 'texto-3' }, 'Esta é uma semana leve: o treino curto é o recomendado.') : h('p', { class: 'texto-3' }, 'Dia corrido? O curto conta como treino, mas não conta para subir de nível.'),
+        leve
+          ? h('p', { class: 'texto-3' }, 'Esta é uma semana leve: o treino curto é o recomendado.')
+          : adaptando
+            ? h('p', { class: 'texto-3' }, `Semana ${semana} de adaptação: 2 séries por exercício para o corpo se acostumar. A partir da semana ${SEMANAS_DE_ADAPTACAO + 1}, 3 séries.`)
+            : h('p', { class: 'texto-3' }, 'Dia corrido? O curto conta como treino, mas não conta para subir de nível.'),
       ),
       cartao(
         { titulo: 'Alguma articulação doendo?', subtitulo: 'Joelho, ombro, lombar, punho…' },
@@ -513,7 +524,8 @@ export default function telaTreino(ctx) {
     );
 
     // O controle da série vem logo depois do nome: é o que se usa a cada minuto.
-    return h('div', { class: 'pilha' }, topo(`Exercício ${r.idx + 1} de ${total}`, r.idx / total), cabeca, listaSeries, painel, ultimaVez, como, rodape);
+    const figura = figuraExercicio(nv.anim, { rotulo: `Como fazer: ${nv.nome}`, compacta: true });
+    return h('div', { class: 'pilha' }, topo(`Exercício ${r.idx + 1} de ${total}`, r.idx / total), cabeca, figura, listaSeries, painel, ultimaVez, como, rodape);
   }
 
   // ---------- Etapa 4: resumo ----------
@@ -548,6 +560,7 @@ export default function telaTreino(ctx) {
         esforco: x.esforco,
         dor: x.dor,
         pulado: x.pulado || !x.series.length,
+        alvoSeries: x.alvoSeries,
       })),
       rpe: r.rpe,
       notas: r.notas,

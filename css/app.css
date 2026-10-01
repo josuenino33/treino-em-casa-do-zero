@@ -40,6 +40,10 @@
   --mapa-3: #1c5cab;
   --toast-fundo: #1f1f1e;
   --toast-texto: #ffffff;
+  --fig: #256abf;
+  --fig-longe: #9ec5f4;
+  --fig-objeto: #e7e6e1;
+  --fig-objeto-borda: #b9b7ae;
   --sombra: 0 1px 2px rgba(11, 11, 11, 0.04), 0 2px 10px rgba(11, 11, 11, 0.04);
   --raio: 16px;
   --raio-p: 12px;
@@ -83,6 +87,10 @@
     --mapa-3: #9ec5f4;
     --toast-fundo: #f0efec;
     --toast-texto: #0b0b0b;
+    --fig: #6da7ec;
+    --fig-longe: #2b5591;
+    --fig-objeto: #31312e;
+    --fig-objeto-borda: #5e5d57;
     --sombra: none;
   }
 }
@@ -122,6 +130,10 @@
   --mapa-3: #9ec5f4;
   --toast-fundo: #f0efec;
   --toast-texto: #0b0b0b;
+  --fig: #6da7ec;
+  --fig-longe: #2b5591;
+  --fig-objeto: #31312e;
+  --fig-objeto-borda: #5e5d57;
   --sombra: none;
 }
 
@@ -1775,6 +1787,253 @@ textarea::placeholder {
 .acoes-linha {
   display: inline-flex;
   flex-shrink: 0;
+}
+
+/* ---------- Ilustrações dos exercícios ---------- */
+
+.fig {
+  position: relative;
+  margin: 0;
+  padding: 4px 4px 0;
+  border-radius: var(--raio-p);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.fig-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 230px;
+}
+
+.fig-compacta .fig-svg {
+  max-height: 170px;
+}
+
+.fig-mini {
+  display: block;
+  width: 60px;
+  height: auto;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.fig-chao {
+  stroke: var(--eixo);
+  stroke-width: 2;
+}
+
+.fig-objeto {
+  fill: var(--fig-objeto);
+  stroke: var(--fig-objeto-borda);
+  stroke-width: 1.5;
+}
+
+.fig-traco {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.fig-fino {
+  stroke-width: 3;
+}
+
+.fig-barra {
+  stroke: var(--texto-3);
+  stroke-width: 5;
+}
+
+.fig-preenchido {
+  fill: var(--texto-3);
+  stroke: none;
+}
+
+.fig-membro {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fig-perna {
+  stroke-width: 11;
+}
+
+.fig-braco {
+  stroke-width: 9;
+}
+
+.fig-perto {
+  stroke: var(--fig);
+}
+
+.fig-longe {
+  stroke: var(--fig-longe);
+}
+
+.fig-tronco {
+  stroke: var(--fig);
+  stroke-width: 20;
+  stroke-linecap: round;
+}
+
+.fig-pescoco {
+  stroke: var(--fig);
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.fig-cabeca {
+  fill: var(--fig);
+}
+
+.fig-mochila {
+  fill: var(--cat-2);
+}
+
+.fig-fantasma {
+  opacity: 0.2;
+}
+
+.fig-botao {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--texto-2);
+  cursor: pointer;
+}
+
+.fig-legenda {
+  position: absolute;
+  left: 12px;
+  bottom: 8px;
+  color: var(--texto-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ---------- Medição da caminhada ---------- */
+
+.medicao .stat-valor {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.medicao [data-nivel='otimo'],
+.medicao [data-nivel='bom'] {
+  color: var(--sucesso-texto);
+}
+
+.medicao [data-nivel='fraco'] {
+  color: var(--aviso-texto);
+}
+
+.medicao [data-nivel='ruim'] {
+  color: var(--perigo-texto);
+}
+
+.medido {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--raio-p);
+  background: var(--surface-2);
+}
+
+.medido .stat {
+  background: var(--surface);
+}
+
+.rota {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.rota-linha {
+  fill: none;
+  stroke: var(--serie-1);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rota-inicio {
+  fill: var(--sucesso);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.rota-fim {
+  fill: var(--texto);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.trava {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: #000;
+  color: #8a8a85;
+  touch-action: none;
+  user-select: none;
+}
+
+.trava .crono-visor {
+  color: #8a8a85;
+}
+
+.trava-dados {
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.trava-botao {
+  position: relative;
+  overflow: hidden;
+  margin-top: 40px;
+  padding: 18px 28px;
+  border: 1px solid #333;
+  border-radius: 99px;
+  background: #111;
+  color: #b5b5ae;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.trava-botao span:last-child {
+  position: relative;
+}
+
+.trava-progresso {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background: #1c3d66;
+}
+
+.trava-progresso.cheio {
+  width: 100%;
+  transition: width 1.5s linear;
 }
 
 /* ---------- Gráficos ---------- */

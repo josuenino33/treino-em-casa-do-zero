@@ -40,6 +40,9 @@ test('semanas e fases do programa', () => {
 });
 
 test('meta de caminhada cresce 5 min por semana até 60', () => {
+  assert.equal(metaCaminhada(1, 'devagar'), 10);
+  assert.equal(metaCaminhada(3, 'devagar'), 20);
+  assert.equal(metaCaminhada(20, 'devagar'), 60);
   assert.equal(metaCaminhada(1), 20);
   assert.equal(metaCaminhada(4), 35);
   assert.equal(metaCaminhada(9), 60);

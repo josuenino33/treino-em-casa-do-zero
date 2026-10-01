@@ -6,8 +6,11 @@ import { novoId } from '../core/esquema.js';
 import { registrarConquistas } from '../logic/conquistas.js';
 import { CAMPOS_MEDIDA, serieMedida } from '../logic/estatisticas.js';
 import { TIPOS_CAMINHADA } from '../logic/plano.js';
-import { abrirFolha, botao, campo, entradaNumero, segmentado, toast } from '../ui/componentes.js';
-import { h, numCurto } from '../ui/dom.js';
+import { formatarRitmo, ritmoMinKm } from '../logic/gps.js';
+import { abrirFolha, aviso, botao, campo, entradaNumero, segmentado, toast } from '../ui/componentes.js';
+import { h, num, numCurto } from '../ui/dom.js';
+import { desenharRota } from '../ui/rota.js';
+import { relogio } from '../core/datas.js';
 
 export function verificarConquistas() {
   let novas = [];
@@ -109,11 +112,34 @@ export function salvarCaminhada(registro) {
   verificarConquistas();
 }
 
-export function folhaCaminhada({ minutos = null, tipo = 'continua', aoSalvar, caminhada = null } = {}) {
+// Resumo do que foi medido pelos sensores (só leitura: não dá para editar).
+function cartaoMedido(m) {
+  const kmh = m.metros != null && !m.distanciaEstimada && m.segundos > 0 ? (m.metros / m.segundos) * 3.6 : null;
+  const itens = [
+    m.passos != null ? ['Passos', num(m.passos)] : null,
+    m.metros != null ? ['Distância', `${m.distanciaEstimada ? '≈ ' : ''}${numCurto(m.metros / 1000, 2)} km`] : null,
+    kmh != null ? ['Velocidade média', `${numCurto(kmh, 1)} km/h`] : null,
+    kmh != null ? ['Ritmo', `${formatarRitmo(ritmoMinKm(m.metros, m.segundos))} min/km`] : null,
+  ].filter(Boolean);
+  const fontes = [m.passos != null ? 'passos pelo sensor de movimento' : null, m.metros != null ? (m.distanciaEstimada ? 'distância estimada (passos × tamanho do seu passo)' : 'distância pelo GPS') : null].filter(Boolean);
+  return h(
+    'div',
+    { class: 'medido' },
+    h('p', { class: 'sobretitulo' }, 'Medido nesta caminhada'),
+    h('div', { class: 'grade-stats compacta' }, itens.map(([r, v]) => h('div', { class: 'stat' }, h('span', { class: 'stat-rotulo' }, r), h('span', { class: 'stat-valor' }, v)))),
+    desenharRota(m.rota),
+    h('p', { class: 'texto-3' }, `Fonte: ${fontes.join(' e ')}.${m.gps ? ` GPS: ${m.gps.aceitos} leituras usadas, ${m.gps.descartados} descartadas (imprecisas ou com salto)${m.gps.precisaoMedia ? `, precisão média ±${m.gps.precisaoMedia} m` : ''}.` : ''}`),
+    m.segundosForaDaTela > 0 ? aviso({ tipo: 'aviso', texto: `${relogio(m.segundosForaDaTela)} fora da tela sem medição.` }) : null,
+  );
+}
+
+export function folhaCaminhada({ minutos = null, tipo = 'continua', aoSalvar, caminhada = null, medicao = null } = {}) {
+  const medido = medicao || caminhada?.medicao || null;
   const dados = {
     minutos: caminhada?.minutos ?? minutos,
     tipo: caminhada?.tipo || tipo,
     passos: caminhada?.passos ?? null,
+    distanciaKm: caminhada?.distanciaKm ?? null,
     sensacao: caminhada?.sensacao || 'ok',
   };
   const data = entradaData(caminhada?.data || hojeISO());
@@ -128,7 +154,9 @@ export function folhaCaminhada({ minutos = null, tipo = 'continua', aoSalvar, ca
       campo({ rotulo: 'Data', entrada: data }),
       campo({ rotulo: 'Duração (minutos)', entrada: entradaNumero({ valor: dados.minutos, min: 1, max: 600, sufixo: 'min', aoMudar: (v) => (dados.minutos = v) }) }),
       h('div', { class: 'campo' }, h('span', { class: 'rotulo' }, 'Tipo'), segmentado({ rotulo: 'Tipo de caminhada', opcoes: Object.entries(TIPOS_CAMINHADA).map(([id, t]) => ({ id, nome: t.nome })), valor: dados.tipo, aoMudar: (v) => (dados.tipo = v) })),
-      campo({ rotulo: 'Passos', dica: 'Se o celular ou relógio contou', entrada: entradaNumero({ valor: dados.passos, min: 0, max: 100000, aoMudar: (v) => (dados.passos = v) }) }),
+      medido ? cartaoMedido(medido) : null,
+      medido?.passos != null ? null : campo({ rotulo: 'Passos', dica: 'Se o celular ou relógio contou', entrada: entradaNumero({ valor: dados.passos, min: 0, max: 100000, aoMudar: (v) => (dados.passos = v) }) }),
+      medido?.metros != null ? null : campo({ rotulo: 'Distância (km)', dica: 'Opcional', entrada: entradaNumero({ valor: dados.distanciaKm, min: 0, max: 100, decimal: true, sufixo: 'km', aoMudar: (v) => (dados.distanciaKm = v) }) }),
       h('div', { class: 'campo' }, h('span', { class: 'rotulo' }, 'Como foi'), segmentado({ rotulo: 'Como foi', opcoes: [{ id: 'facil', nome: 'Fácil' }, { id: 'ok', nome: 'Na medida' }, { id: 'dificil', nome: 'Puxada' }], valor: dados.sensacao, aoMudar: (v) => (dados.sensacao = v) })),
       campo({ rotulo: 'Anotações', entrada: notas }),
       erro,
@@ -154,7 +182,10 @@ export function folhaCaminhada({ minutos = null, tipo = 'continua', aoSalvar, ca
             data: data.value,
             minutos: dados.minutos,
             tipo: dados.tipo,
-            passos: dados.passos,
+            passos: medido?.passos ?? dados.passos,
+            distanciaKm: medido?.metros != null ? Number((medido.metros / 1000).toFixed(3)) : dados.distanciaKm,
+            fonte: medido ? 'medido' : 'manual',
+            medicao: medido,
             sensacao: dados.sensacao,
             notas: notas.value.trim(),
           });

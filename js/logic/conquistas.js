@@ -3,6 +3,7 @@
 
 import { hojeISO } from '../core/datas.js';
 import { nivelDe } from '../data/trilhas.js';
+import { totalPausas } from './pausas.js';
 import { trilhaDesbloqueada, niveisConquistados } from './progressao.js';
 import {
   kgPerdidos,
@@ -54,6 +55,7 @@ export function contexto(estado, hoje = hojeISO()) {
     habitosSeguidos: sequenciaHabitos(estado, hoje),
     prancha: maiorSeriePrancha(estado),
     recordeTeste: testeComRecorde(estado),
+    pausas: totalPausas(estado),
   };
 }
 
@@ -92,9 +94,14 @@ export const CONQUISTAS = [
 
   c('caminhadas-10', 'Fôlego', '10 caminhadas', 'Registre 10 caminhadas.', 10, (x) => x.totais.caminhadas, 'caminhadas'),
   c('caminhadas-50', 'Fôlego', '50 caminhadas', 'Registre 50 caminhadas.', 50, (x) => x.totais.caminhadas, 'caminhadas'),
+  c('km-10', 'Fôlego', '10 km', 'Some 10 km de caminhada medida ou registrada.', 10, (x) => x.totais.km, 'km'),
+  c('km-100', 'Fôlego', '100 km', 'Some 100 km de caminhada.', 100, (x) => x.totais.km, 'km'),
+  c('passos-100mil', 'Fôlego', '100 mil passos', 'Some 100 mil passos nas caminhadas.', 100000, (x) => x.totais.passos, 'passos'),
   c('minutos-1000', 'Fôlego', '1.000 minutos', 'Some 1.000 minutos de caminhada.', 1000, (x) => x.totais.minutos, 'min'),
   c('minutos-5000', 'Fôlego', '5.000 minutos', 'Some 5.000 minutos de caminhada.', 5000, (x) => x.totais.minutos, 'min'),
 
+  c('pausas-10', 'Hábitos', '10 pausas ativas', 'Levante da cadeira para 10 pausas ativas.', 10, (x) => x.pausas, 'pausas'),
+  c('pausas-100', 'Hábitos', '100 pausas ativas', 'Some 100 pausas ativas.', 100, (x) => x.pausas, 'pausas'),
   c('habitos-7', 'Hábitos', 'Semana redonda', '7 dias seguidos cumprindo todos os hábitos.', 7, (x) => x.habitosSeguidos, 'dias'),
   c('habitos-30', 'Hábitos', 'Mês redondo', '30 dias seguidos cumprindo todos os hábitos.', 30, (x) => x.habitosSeguidos, 'dias'),
 ];

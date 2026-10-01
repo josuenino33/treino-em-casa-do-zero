@@ -1,6 +1,6 @@
 {
   "name": "trilha-treino",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Treino com peso do corpo para começar do zero: trilhas de progressão, caminhada, medidas, hábitos e conquistas. Funciona offline e guarda tudo no seu aparelho.",
   "private": true,
   "type": "module",

@@ -11,6 +11,11 @@ import { h, limpar, numCurto } from '../ui/dom.js';
 import { icone } from '../ui/icones.js';
 import { fluxoTeste } from './testes.js';
 
+const RITMOS = [
+  { id: 'devagar', nome: 'Bem devagar (recomendado)', detalhe: '2 séries nas 4 primeiras semanas, caminhada a partir de 10 min, começa um nível abaixo do teste' },
+  { id: 'normal', nome: 'Normal', detalhe: '3 séries desde o início, caminhada a partir de 20 min' },
+];
+
 const PADROES = [
   { id: 'smw', nome: 'Seg · Qua · Sex', treino: [1, 3, 5], caminhada: [2, 4, 6] },
   { id: 'tqs', nome: 'Ter · Qui · Sáb', treino: [2, 4, 6], caminhada: [1, 3, 5] },
@@ -19,7 +24,7 @@ const PADROES = [
 
 export default function telaBoasVindas(ctx) {
   const raiz = h('div', { class: 'boas-vindas' });
-  const dados = { nome: '', anoNascimento: null, alturaCm: null, peso: null, pesoMeta: null, sexo: null, padrao: 'smw', barra: false, teste: null };
+  const dados = { nome: '', anoNascimento: null, alturaCm: null, peso: null, pesoMeta: null, sexo: null, padrao: 'smw', barra: false, ritmo: 'devagar', teste: null };
   let passo = 0;
   let fluxo = null;
 
@@ -98,6 +103,10 @@ export default function telaBoasVindas(ctx) {
         { titulo: 'Dias de treino de força' },
         segmentado({ rotulo: 'Dias de treino', classe: 'segmentado-vertical', opcoes: PADROES.map((p) => ({ id: p.id, nome: p.nome, detalhe: `Caminhada: ${p.caminhada.map((d) => NOMES_DIAS[d]).join(', ')}` })), valor: dados.padrao, aoMudar: (v) => (dados.padrao = v) }),
       ),
+      cartao(
+        { titulo: 'Como você quer começar?', subtitulo: 'Parado há muito tempo ou com bastante peso a perder? Escolha "Bem devagar". Dá para mudar depois.' },
+        segmentado({ rotulo: 'Ritmo do programa', classe: 'segmentado-vertical', opcoes: RITMOS, valor: dados.ritmo, aoMudar: (v) => (dados.ritmo = v) }),
+      ),
       cartao(null, alternador({ rotulo: 'Tenho acesso a uma barra', detalhe: 'Praça, academia ao ar livre ou barra de porta. Sem barra, a remada é feita com mochila.', marcado: dados.barra, aoMudar: (v) => (dados.barra = v) })),
       navegacao({}),
     );
@@ -125,14 +134,23 @@ export default function telaBoasVindas(ctx) {
   }
 
   function passoResultado() {
-    const niveis = niveisIniciais(dados.teste || {});
+    const niveis = niveisIniciais(dados.teste || {}, { devagar: dados.ritmo === 'devagar' });
     const estadoFake = { niveis, historicoNiveis: [], treinos: [], config: { barra: dados.barra } };
     return h(
       'div',
       { class: 'pilha' },
       pontos(4),
       h('h1', null, 'Seu ponto de partida'),
-      h('p', { class: 'texto-2' }, dados.teste ? 'Pelos testes, você começa assim. Se algum ficar fácil ou difícil, ajuste na tela Trilha.' : 'Começando todos do nível 1. Vai rápido: quando ficar fácil, o app sobe você.'),
+      h(
+        'p',
+        { class: 'texto-2' },
+        dados.teste
+          ? `Pelos testes, você começa assim${dados.ritmo === 'devagar' ? ', já um nível abaixo para sobrar fôlego' : ''}. Se algum ficar fácil ou difícil, ajuste na tela Trilha.`
+          : 'Começando todos do nível 1. Quando ficar fácil, o app sugere subir.',
+      ),
+      dados.ritmo === 'devagar'
+        ? aviso({ tipo: 'info', titulo: 'Começo bem devagar', texto: 'Nas 4 primeiras semanas: 2 séries por exercício, 90 segundos de descanso e caminhada de 10 minutos, que sobe 5 por semana. Se os braços cansarem, pare a série: sobrar força é o objetivo.' })
+        : null,
       cartao(
         null,
         h(
@@ -165,6 +183,8 @@ export default function telaBoasVindas(ctx) {
       st.config.diasTreino = padrao.treino;
       st.config.diasCaminhada = padrao.caminhada;
       st.config.barra = dados.barra;
+      st.config.ritmo = dados.ritmo;
+      st.config.descanso = dados.ritmo === 'devagar' ? 90 : 75;
       st.niveis = { ...st.niveis, ...niveis };
       if (dados.peso) st.medidas.push({ id: novoId(), data: hoje, peso: dados.peso });
       if (dados.teste) st.testes.push({ id: novoId(), data: hoje, ...dados.teste });

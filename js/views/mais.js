@@ -8,6 +8,7 @@ import { avaliarConquistas } from '../logic/conquistas.js';
 import { TIPOS_CAMINHADA, statusTeste } from '../logic/plano.js';
 import { aviso, barraProgresso, botao, cartao, confirmar, itemLink, toast, vazio } from '../ui/componentes.js';
 import { h, num, numCurto } from '../ui/dom.js';
+import { figuraExercicio, miniFigura } from '../ui/figura.js';
 import { icone } from '../ui/icones.js';
 import { folhaCaminhada } from './acoes.js';
 import { VERSAO_APP, URL_REPOSITORIO } from '../versao.js';
@@ -130,7 +131,13 @@ function telaHistorico(ctx) {
               'li',
               { class: 'historico-item' },
               h('span', { class: 'item-icone' }, icone('caminhada', { tamanho: 18 })),
-              h('span', { class: 'item-texto' }, h('strong', null, `Caminhada · ${num(item.minutos)} min`), h('small', null, `${formatarData(item.data, { diaSemana: true })} · ${TIPOS_CAMINHADA[item.tipo]?.nome || 'Contínua'}${item.passos ? ` · ${num(item.passos)} passos` : ''}`)),
+              h(
+                'span',
+                { class: 'item-texto' },
+                h('strong', null, `Caminhada · ${num(item.minutos)} min${item.distanciaKm ? ` · ${numCurto(item.distanciaKm, 2)} km` : ''}`),
+                h('small', null, `${formatarData(item.data, { diaSemana: true })} · ${TIPOS_CAMINHADA[item.tipo]?.nome || 'Contínua'}${item.passos ? ` · ${num(item.passos)} passos` : ''}`),
+                h('small', null, h('span', { class: `selo ${item.fonte === 'medido' ? 'selo-sucesso' : ''}`.trim() }, item.fonte === 'medido' ? (item.medicao?.distanciaEstimada ? 'Medido (distância estimada)' : 'Medido pelos sensores') : 'Registrado à mão')),
+              ),
               h(
                 'span',
                 { class: 'acoes-linha' },
@@ -204,10 +211,11 @@ function telaBiblioteca() {
                 h(
                   'details',
                   null,
-                  h('summary', null, h('span', { class: 'nivel-bolha' }, String(n)), h('span', { class: 'nivel-nome' }, h('strong', null, nv.nome), h('small', null, rotuloFaixa(nv), nv.equipamento === 'barra' ? ' · precisa de barra' : ''))),
+                  h('summary', null, h('span', { class: 'nivel-bolha' }, String(n)), h('span', { class: 'nivel-nome' }, h('strong', null, nv.nome), h('small', null, rotuloFaixa(nv), nv.equipamento === 'barra' ? ' · precisa de barra' : '')), miniFigura(nv.anim)),
                   h(
                     'div',
                     { class: 'nivel-corpo' },
+                    figuraExercicio(nv.anim, { rotulo: `Como fazer: ${nv.nome}`, compacta: true }),
                     h('ol', null, nv.como.map((p) => h('li', null, p))),
                     nv.dicas.length ? h('p', null, h('strong', null, 'Dica: '), nv.dicas.join(' ')) : null,
                     nv.erros.length ? h('p', null, h('strong', null, 'Evite: '), nv.erros.join(' ')) : null,

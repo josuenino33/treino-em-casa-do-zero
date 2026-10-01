@@ -14,6 +14,12 @@ import { aplicarTema } from '../ui/tema.js';
 
 const DIAS_ORDENADOS = [1, 2, 3, 4, 5, 6, 0];
 
+const RITMOS = [
+  { id: 'devagar', nome: 'Bem devagar (recomendado)', detalhe: '2 séries nas 4 primeiras semanas, caminhada a partir de 10 min, começa um nível abaixo do teste' },
+  { id: 'normal', nome: 'Normal', detalhe: '3 séries desde o início, caminhada a partir de 20 min' },
+];
+
+
 function salvarPerfil(campoNome, valor) {
   atualizar((st) => {
     st.perfil[campoNome] = valor;
@@ -159,6 +165,7 @@ export default function telaConfig(ctx) {
 
   const treino = cartao(
     { titulo: 'Treino' },
+    h('div', { class: 'campo' }, h('span', { class: 'rotulo' }, 'Ritmo do programa'), segmentado({ rotulo: 'Ritmo do programa', classe: 'segmentado-vertical', opcoes: RITMOS, valor: c.ritmo, aoMudar: (v) => salvarConfig('ritmo', v) })),
     h('div', { class: 'campo' }, h('span', { class: 'rotulo' }, 'Descanso entre séries'), segmentado({ rotulo: 'Descanso entre séries', opcoes: [60, 75, 90, 120].map((s) => ({ id: s, nome: s === 60 ? '1 min' : s === 120 ? '2 min' : `${s} s` })), valor: c.descanso, aoMudar: (v) => salvarConfig('descanso', v) })),
     alternador({ rotulo: 'Tenho acesso a uma barra', detalhe: 'Praça, academia ao ar livre ou barra de porta. Libera os níveis avançados de remada.', marcado: c.barra, aoMudar: (v) => salvarConfig('barra', v) }),
     alternador({ rotulo: 'Sons', detalhe: 'Bipe no fim do descanso e do cronômetro', marcado: c.som, aoMudar: (v) => salvarConfig('som', v) }),
@@ -183,6 +190,30 @@ export default function telaConfig(ctx) {
         },
       }),
     ),
+  );
+
+  const pausas = cartao(
+    { titulo: 'Pausas ativas', subtitulo: 'Para quem passa muito tempo sentado: 2 minutos de movimento leve.' },
+    alternador({ rotulo: 'Mostrar na tela Hoje', marcado: c.pausas.mostrar, aoMudar: (v) => atualizar((st) => { st.config.pausas.mostrar = v; }) }),
+    alternador({
+      rotulo: 'Lembrar de levantar',
+      detalhe: 'Bipe e aviso enquanto o app estiver aberto (no computador ou no celular), entre 7h e 21h.',
+      marcado: c.pausas.lembrete,
+      aoMudar: async (v) => {
+        atualizar((st) => {
+          st.config.pausas.lembrete = v;
+        });
+        if (v && 'Notification' in window && Notification.permission === 'default') {
+          try {
+            await Notification.requestPermission();
+          } catch {
+            /* sem notificação: fica só o aviso na tela */
+          }
+        }
+      },
+    }),
+    h('div', { class: 'campo' }, h('span', { class: 'rotulo' }, 'Lembrar a cada'), segmentado({ rotulo: 'Intervalo do lembrete', opcoes: [30, 45, 50, 60].map((m) => ({ id: m, nome: `${m} min` })), valor: c.pausas.intervalo, aoMudar: (v) => atualizar((st) => { st.config.pausas.intervalo = v; }) })),
+    h('div', { class: 'campo' }, h('span', { class: 'rotulo' }, 'Meta por dia'), segmentado({ rotulo: 'Meta de pausas por dia', opcoes: [2, 4, 6, 8].map((m) => ({ id: m, nome: String(m) })), valor: c.pausas.meta, aoMudar: (v) => atualizar((st) => { st.config.pausas.meta = v; }) })),
   );
 
   const aparencia = cartao(
@@ -229,6 +260,6 @@ export default function telaConfig(ctx) {
     titulo: 'Ajustes',
     voltar: '#/mais',
     aba: 'mais',
-    conteudo: h('div', { class: 'pilha' }, h('header', { class: 'ola' }, h('h1', null, 'Ajustes')), perfil, agenda, treino, habitos, aparencia, instalacao, dados),
+    conteudo: h('div', { class: 'pilha' }, h('header', { class: 'ola' }, h('h1', null, 'Ajustes')), perfil, agenda, treino, pausas, habitos, aparencia, instalacao, dados),
   };
 }

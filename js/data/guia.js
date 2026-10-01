@@ -13,6 +13,18 @@ export const ARTIGOS = [
     ],
   },
   {
+    id: 'do-zero',
+    titulo: 'Começando do zero',
+    icone: 'coracao',
+    paragrafos: [
+      'Se você está parado há muito tempo, trabalha sentado e tem bastante peso a perder, o começo é a parte mais importante. O objetivo das primeiras semanas não é cansar: é acostumar articulações, tendões e coração com o movimento.',
+      'Por isso o modo "Bem devagar" pede só 2 séries por exercício nas 4 primeiras semanas, 90 segundos de descanso e caminhada de 10 minutos. Se ainda for muito, faça o treino curto ou divida a caminhada em duas de 5 minutos.',
+      'Braço cansar rápido é normal no começo, porque eles sustentam muito peso na flexão e na prancha. Pare a série quando sentir o braço "pesar", mesmo que seja na terceira repetição. O treino alterna braço e perna justamente para os braços descansarem.',
+      'Os primeiros níveis (sentar e levantar, flexão na parede, prancha na mesa) parecem fáceis de propósito. Quando ficarem fáceis de verdade, o app sugere subir.',
+      'Levantar da cadeira várias vezes ao dia ajuda tanto quanto o treino. Use as pausas ativas: 2 minutos a cada hora de trabalho.',
+    ],
+  },
+  {
     id: 'falha',
     titulo: 'Por que parar antes do limite',
     icone: 'escudo',
@@ -64,6 +76,18 @@ export const ARTIGOS = [
       'Pare o treino e procure atendimento se sentir: dor ou aperto no peito, falta de ar muito maior do que o esforço justifica, tontura ou visão escura, palpitação forte, ou dor que irradia para o braço, pescoço ou mandíbula.',
       'Antes de começar, se possível, faça um check-up: pressão, glicemia e colesterol. Se você tem pressão alta, diabetes, problema cardíaco ou usa remédios contínuos, converse com seu médico antes.',
       'Este app não substitui acompanhamento de médico, nutricionista ou profissional de educação física.',
+    ],
+  },
+  {
+    id: 'medicao',
+    titulo: 'Passos e distância: como o app mede',
+    icone: 'caminhada',
+    paragrafos: [
+      'Passos vêm do sensor de movimento do celular. O app só conta depois de 6 passos seguidos com ritmo de caminhada, descarta picos rápidos demais e bloqueia a contagem quando o celular é chacoalhado. Batidas soltas, como pôr o celular na mesa, não viram passos.',
+      'Distância e velocidade vêm do GPS. Leituras com precisão pior que 25 m são ignoradas, saltos impossíveis a pé são descartados, e a tremida do GPS parado não soma distância. Se o sensor de passos diz que você está parado, a distância não sobe.',
+      'Nenhum celular mede com 100% de exatidão: o GPS erra alguns metros e o sensor pode perder alguns passos. Os filtros foram feitos para errar para menos, nunca para inflar. Faça o teste de 100 passos para ver a precisão no seu aparelho.',
+      'O navegador só deixa medir com o app aberto e a tela ligada. Use "Travar tela" para levar no bolso. Se o app for para segundo plano, esse tempo aparece como "sem medição" no resumo, em vez de números inventados.',
+      'Sua localização e sua rota ficam só no seu aparelho. Nada é enviado para servidor nenhum.',
     ],
   },
   {

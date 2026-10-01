@@ -145,13 +145,54 @@ test('afundo só entra no treino quando o agachamento chega ao nível 4', () => 
 
 test('treino curto usa 2 séries e a estimativa de tempo é razoável', () => {
   const e = estadoBase();
-  const completo = montarTreino(e, 'completo');
-  const curto = montarTreino(e, 'curto');
+  e.config.ritmo = 'normal';
+  const completo = montarTreino(e, 'completo', '2026-10-01');
+  const curto = montarTreino(e, 'curto', '2026-10-01');
   assert.ok(completo.every((x) => x.metas.length === 3));
   assert.ok(curto.every((x) => x.metas.length === 2));
   const min = estimarMinutos(completo, 75);
   assert.ok(min >= 20 && min <= 50, `estimativa fora do esperado: ${min}`);
   assert.ok(estimarMinutos(curto, 75) < min);
+});
+
+test('ritmo devagar: 2 séries nas 4 primeiras semanas, depois 3', () => {
+  const e = estadoBase(); // início 2026-09-07, ritmo devagar (padrão)
+  assert.equal(e.config.ritmo, 'devagar');
+  assert.ok(montarTreino(e, 'completo', '2026-09-07').every((x) => x.metas.length === 2 && x.alvoSeries === 2));
+  assert.ok(montarTreino(e, 'completo', '2026-10-04').every((x) => x.metas.length === 2)); // semana 4
+  assert.ok(montarTreino(e, 'completo', '2026-10-05').every((x) => x.metas.length === 3)); // semana 5
+  assert.ok(montarTreino(e, 'curto', '2026-09-07').every((x) => x.metas.length === 1));
+});
+
+test('na adaptação, 2 séries completas no topo contam para subir', () => {
+  const e = estadoBase();
+  e.niveis.empurrar = 1; // parede: 10–15
+  addTreino(e, '2026-09-07', 'empurrar', 1, [15, 15], { alvoSeries: 2 });
+  addTreino(e, '2026-09-09', 'empurrar', 1, [15, 15], { alvoSeries: 2 });
+  assert.equal(statusTrilha(e, 'empurrar').podeSubir, true);
+  // Treino curto na adaptação (1 série de 2 previstas) não conta.
+  const e2 = estadoBase();
+  addTreino(e2, '2026-09-07', 'empurrar', 1, [15], { alvoSeries: 2 });
+  addTreino(e2, '2026-09-09', 'empurrar', 1, [15], { alvoSeries: 2 });
+  assert.equal(statusTrilha(e2, 'empurrar').podeSubir, false);
+});
+
+test('ritmo devagar começa um nível abaixo do teste', () => {
+  const n = niveisIniciais({ flexoes: 10, sentar30: 11, prancha: 20 }, { devagar: true });
+  assert.equal(n.empurrar, 3);
+  assert.equal(n.agachamento, 1);
+  assert.equal(n.prancha, 1);
+  assert.equal(niveisIniciais({ flexoes: 0 }, { devagar: true }).empurrar, 1);
+});
+
+test('ordem do treino alterna braço e perna', () => {
+  const e = estadoBase();
+  e.niveis.agachamento = 4; // libera o afundo
+  const ordem = montarTreino(e, 'completo', '2026-10-01').map((x) => x.trilha);
+  const bracos = new Set(['empurrar', 'puxar']);
+  for (let i = 1; i < ordem.length; i += 1) {
+    assert.ok(!(bracos.has(ordem[i]) && bracos.has(ordem[i - 1])), `dois de braço seguidos: ${ordem.join(', ')}`);
+  }
 });
 
 test('melhor série considera só o nível pedido', () => {

@@ -9,9 +9,13 @@ App web para quem está começando do zero (inclusive com bastante peso a perder
 | Área | Recursos |
 |---|---|
 | **Trilhas de evolução** | 7 trilhas (agachamento, flexão, remada, afundo, ponte de glúteo, prancha, core) com 55 níveis, do "sentar e levantar da cadeira" até a barra fixa. Cada nível tem execução passo a passo, dica, erro comum e link para vídeos. |
+| **Ilustrações animadas** | Cada um dos 55 níveis tem um boneco animado mostrando o movimento, com a cadeira, mesa, sofá, degrau ou mochila do exercício. Desenhado no próprio app: funciona sem internet. |
+| **Começo bem devagar** | Modo padrão para quem está parado há muito tempo: 2 séries nas 4 primeiras semanas, 90 s de descanso, caminhada a partir de 10 min e ponto de partida um nível abaixo do teste. O treino alterna braço e perna para os braços descansarem. |
+| **Pausas ativas** | Rotina guiada de 2 minutos para quem trabalha sentado, com meta diária e lembrete a cada hora enquanto o app estiver aberto. |
 | **Treino guiado** | Check-in (duração e dor articular), aquecimento, metas série a série, contador de repetições, cronômetro para prancha, descanso cronometrado com bipe e vibração, tela sempre ligada, pergunta de esforço e resumo com sugestão de subir ou voltar de nível. Dá para fechar o app no meio e continuar depois. |
 | **Fases do programa** | Adaptação (sem. 1–4), Construção (5–8), Evolução (9–16) e Domínio (17+), com semana leve a cada 8 semanas. |
-| **Caminhada** | Meta que cresce 5 min por semana (20 → 60 min), cronômetro com avisos de troca de ritmo na intervalada, caminhada com subidas a partir da fase 3. |
+| **Caminhada** | Meta que cresce 5 min por semana (10 ou 20 → 60 min), cronômetro com avisos de troca de ritmo na intervalada, caminhada com subidas a partir da fase 3. |
+| **Passos, km e velocidade** | Medição real durante a caminhada: passos pelo sensor de movimento, distância, velocidade e ritmo pelo GPS, cadência, qualidade do sinal, trajeto e tela travada para o bolso. Filtros contra números inflados e teste de 100 passos para conferir. |
 | **Teste de evolução** | A cada 4 semanas: flexões, sentar e levantar em 30 s, prancha máxima e batimentos em repouso. O primeiro teste define os níveis de partida. |
 | **Progresso** | Peso com média de 7 dias e ritmo semanal, cintura e outras medidas, mapa de constância, séries e minutos por semana, fotos de antes e depois (com comparação) e tabela equivalente em todos os gráficos. |
 | **Nutrição** | Metas estimadas de calorias (Mifflin-St Jeor), proteína e água, IMC, marcos a cada 5 kg, guia do prato, tabela de proteína dos alimentos e hábitos diários com constância. |
@@ -36,6 +40,17 @@ Detalhes que evitam armadilhas:
 - Cada trilha anda no seu ritmo: é normal estar no nível 5 da flexão e no 2 da prancha.
 
 As regras estão em [`js/logic/progressao.js`](js/logic/progressao.js) e têm testes em [`tests/progressao.test.js`](tests/progressao.test.js).
+
+## Como a medição de passos e distância funciona
+
+Feita para **não inflar** os números (veja [`js/logic/passos.js`](js/logic/passos.js), [`js/logic/gps.js`](js/logic/gps.js) e os testes em [`tests/medicao.test.js`](tests/medicao.test.js)):
+
+- **Passos:** o sinal do acelerômetro é filtrado e cada pico com vale é um passo candidato. Só conta depois de 6 passos seguidos com ritmo regular; picos rápidos demais (mais de ~3,6 por segundo) e agitação (chacoalhar) são descartados.
+- **Distância:** leituras de GPS com precisão pior que 25 m são ignoradas, saltos impossíveis a pé são descartados, a posição é a média das últimas 8 leituras, e deslocamentos lentos demais para ser caminhada (deriva do GPS parado) não somam. Se o sensor de passos diz que você está parado, a distância não sobe.
+- **Sem GPS** (esteira, dentro de casa): a distância é estimada por passos × tamanho do seu passo, calculado em caminhadas anteriores com GPS, e aparece marcada como "estimada".
+- **Limite do navegador:** um app web só mede com a tela aberta. O tempo em segundo plano fica registrado como "sem medição". Para contar passos o dia inteiro em segundo plano seria preciso um app nativo (Android/iOS).
+
+Os testes simulam caminhada normal e lenta (erro abaixo de 3% nos passos e 6–8% na distância), celular chacoalhado, batidas soltas, GPS parado tremendo, saltos e pausas.
 
 ## Publicar no GitHub
 
