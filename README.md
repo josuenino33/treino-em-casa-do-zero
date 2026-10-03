@@ -1,6 +1,8 @@
-# Trilha · treino com peso do corpo
+# Treino em casa do zero
 
-**Abrir o app:** https://josuenino33.github.io/trilha-treino/
+**Trilha** é um app de treino com o peso do corpo, sem academia.
+
+**Abrir o app:** https://josuenino33.github.io/treino-em-casa-do-zero/
 
 App web para quem está começando do zero (inclusive com bastante peso a perder) e quer ganhar força, fôlego e perder gordura **aos poucos**, sem academia. Funciona no celular como um app instalado, inclusive sem internet, e todos os dados ficam só no seu aparelho.
 
@@ -61,16 +63,16 @@ O repositório já vem com um workflow ([`.github/workflows/publicar.yml`](.gith
 ### Com o GitHub Desktop
 
 1. Abra o GitHub Desktop e escolha **File → Add local repository…** e selecione esta pasta.
-2. Clique em **Publish repository**. Dê um nome (por exemplo `trilha-treino`) e escolha se quer público ou privado. O GitHub Pages gratuito exige repositório **público**.
+2. Clique em **Publish repository**. Dê um nome (por exemplo `treino-em-casa-do-zero`) e escolha se quer público ou privado. O GitHub Pages gratuito exige repositório **público**.
 3. No site do GitHub, abra o repositório e vá em **Settings → Pages**. Em **Build and deployment → Source**, escolha **GitHub Actions**.
 4. Vá na aba **Actions** e rode o workflow **Testar e publicar** (ou faça qualquer novo commit). Quando terminar, o app estará em:
-   `https://SEU-USUARIO.github.io/trilha-treino/`
+   `https://SEU-USUARIO.github.io/treino-em-casa-do-zero/`
 5. Coloque o endereço do repositório em [`js/versao.js`](js/versao.js) (`URL_REPOSITORIO`) para aparecer um link na tela "Mais".
 
 ### Pela linha de comando
 
 ```bash
-git remote add origin https://github.com/SEU-USUARIO/trilha-treino.git
+git remote add origin https://github.com/SEU-USUARIO/treino-em-casa-do-zero.git
 git push -u origin main
 ```
 

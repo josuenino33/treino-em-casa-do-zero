@@ -2,4 +2,4 @@
 export const VERSAO_APP = '1.1.0';
 
 // Endereço do código no GitHub (aparece como link na tela "Mais").
-export const URL_REPOSITORIO = 'https://github.com/josuenino33/trilha-treino';
+export const URL_REPOSITORIO = 'https://github.com/josuenino33/treino-em-casa-do-zero';
